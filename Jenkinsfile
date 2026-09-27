@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME           = 'visa-service'
+        IMAGE_NAME           = 'chali250/visa-service'
         REGISTRY_CREDENTIALS = 'docker-hub-credentials'
         IMAGE_TAG            = "${BUILD_NUMBER}"
     }
