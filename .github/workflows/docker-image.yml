@@ -1,4 +1,4 @@
-name: CI/CD Visa Card Service Pipeline
+name: Run Jenkinsfile via GitHub Actions
 
 on:
   push:
@@ -7,44 +7,17 @@ on:
     branches: [ "master", "main" ]
 
 jobs:
-  build-test-and-push:
+  jenkins-pipeline:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Récupération du code source
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Configuration de Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Execute Jenkinsfile
+        uses: jlesage/github-action-jenkinsfile@v1
         with:
-          node-version: '18'
-          cache: 'npm'
-
-      # Step 3: Installation des dépendances
-      - name: Install dependencies
-        run: npm ci
-
-      # Step 4: Exécution des tests automatisés (Jest)
-      - name: Run unit tests
-        run: npm test
-
-      # Step 5: Connexion à DockerHub
-      - name: Log in to DockerHub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # Step 6: Construction et publication de l'image Docker
-      - name: Build and push Docker image
-        if: github.event_name != 'pull_request'
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/visa_card_project:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/visa_card_project:${{ github.run_number }}
+          jenkinsfile: 'Jenkinsfile'
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
