@@ -1,0 +1,17 @@
+{
+  "name": "visa-card-service",
+  "version": "1.0.0",
+  "description": "Visa Card Processing Service CI/CD Demo",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest --detectOpenHandles"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0",
+    "supertest": "^6.3.3"
+  }
+}
