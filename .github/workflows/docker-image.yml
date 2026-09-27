@@ -1,4 +1,4 @@
-name: Run Jenkinsfile via GitHub Actions
+name: Visa Card Service CI/CD
 
 on:
   push:
@@ -7,17 +7,42 @@ on:
     branches: [ "master", "main" ]
 
 jobs:
-  jenkins-pipeline:
+  build-test-and-push:
     runs-on: ubuntu-latest
 
     steps:
+      # Stage 1: Checkout Code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Execute Jenkinsfile
-        uses: jlesage/github-action-jenkinsfile@v1
+      # Setup Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          jenkinsfile: 'Jenkinsfile'
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          node-version: '18'
+          cache: 'npm'
+
+      # Stage 2: Install Dependencies (npm ci)
+      - name: Install Dependencies
+        run: npm ci
+
+      # Stage 3: Run Tests (npm test)
+      - name: Run Tests
+        run: npm test
+
+      # Stage 4: Log in to DockerHub
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Stage 5: Build & Push Docker Image (chali250/visa_card_project)
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/visa_card_project:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/visa_card_project:${{ github.run_number }}
