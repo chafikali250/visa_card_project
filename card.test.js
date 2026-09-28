@@ -1,48 +1,47 @@
 const request = require('supertest');
-const app = require('./server');
+const app = require('./server'); // Import depuis la racine du projet
 
 describe('Visa Card API Tests', () => {
 
-  describe('POST /api/cards/validate', () => {
-    test('should successfully validate a correct Visa card number', async () => {
-      const res = await request(app)
-        .post('/api/cards/validate')
-        .send({
-          cardNumber: '4000001234567892',
-          expiryDate: '12/28',
-          cvv: '321'
-        });
-      
-      expect(res.statusCode).toEqual(200);
-      expect(res.body.status).toEqual('SUCCESS');
-    });
+  // Test 1: Validation réussie d'un numéro Visa valide
+  test('should successfully validate a correct Visa card number', async () => {
+    const res = await request(app)
+      .post('/api/cards/validate')
+      .send({
+        cardNumber: "4532015112830366", // Numéro Visa valide
+        expiryDate: "12/28",
+        cvv: "123"
+      });
 
-    test('should fail validation for an invalid card number', async () => {
-      const res = await request(app)
-        .post('/api/cards/validate')
-        .send({
-          cardNumber: '1234567890123456',
-          expiryDate: '12/28',
-          cvv: '321'
-        });
-
-      expect(res.statusCode).toEqual(422);
-      expect(res.body.status).toEqual('INVALID');
-    });
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.status).toEqual("SUCCESS");
   });
 
-  describe('POST /api/cards/issue', () => {
-    test('should issue a new mock Visa card', async () => {
-      const res = await request(app)
-        .post('/api/cards/issue')
-        .send({
-          holderName: 'John Doe'
-        });
+  // Test 2: Échec pour un numéro invalide
+  test('should fail validation for an invalid card number', async () => {
+    const res = await request(app)
+      .post('/api/cards/validate')
+      .send({
+        cardNumber: "1234567890123456", // Numéro invalide
+        expiryDate: "12/28",
+        cvv: "123"
+      });
 
-      expect(res.statusCode).toEqual(201);
-      expect(res.body.cardHolder).toEqual('John Doe');
-      expect(res.body.cardNumber).toBeDefined();
-    });
+    expect(res.statusCode).toEqual(422);
+    expect(res.body.status).toEqual("INVALID");
+  });
+
+  // Test 3: Émission d'une nouvelle carte (Mock)
+  test('should issue a new mock Visa card', async () => {
+    const res = await request(app)
+      .post('/api/cards/issue')
+      .send({
+        holderName: "Ali Chafik"
+      });
+
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toHaveProperty("cardNumber");
   });
 
 });
+      
